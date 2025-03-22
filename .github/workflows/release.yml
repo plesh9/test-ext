@@ -1,0 +1,57 @@
+name: Release Extension
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Bump version
+        run: pnpm bump-version
+
+      - name: Get project metadata
+        id: metadata
+        run: |
+          echo "name=$(node -p \"require('./package.json').name\")" >> $GITHUB_OUTPUT
+          echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Commit and tag version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "🔖 release v${{ steps.metadata.outputs.version }}"
+          git tag "v${{ steps.metadata.outputs.version }}"
+          git push
+          git push --tags
+
+      - name: Zip Extension
+        run: pnpm zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.metadata.outputs.version }}
+          name: Release v${{ steps.metadata.outputs.version }}
+          files: .output/${{ steps.metadata.outputs.name }}-${{ steps.metadata.outputs.version }}-chrome.zip
