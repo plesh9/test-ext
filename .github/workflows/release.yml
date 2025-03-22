@@ -41,7 +41,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git commit -am "🔖 release v${{ steps.metadata.outputs.version }}"
+          git commit -am "Release v${{ steps.metadata.outputs.version }}"
           git tag "v${{ steps.metadata.outputs.version }}"
           git push
           git push --tags
