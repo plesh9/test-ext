@@ -1,21 +1,23 @@
 import fs from "fs";
-import path from "path";
+const pkgPath = "./package.json";
+const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
 
-const pkgPath = path.join(process.cwd(), "package.json");
-const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+const isDev = process.argv.includes("--dev");
+const [major, minor, patchWithDev] = pkg.version.split(".");
+let [patch, devBuild] = patchWithDev.split("-dev.");
 
-let [major, minor, patch] = pkg.version.split(".").map(Number);
+patch = parseInt(patch);
+devBuild = isDev ? parseInt(devBuild ?? "0") + 1 : 0;
 
-if (patch >= 99) {
-  minor += 1;
-  patch = 0;
+if (isDev) {
+  pkg.version = `${major}.${minor}.${patch}-dev.${devBuild}`;
 } else {
-  patch += 1;
+  if (patch >= 99) {
+    pkg.version = `${major}.${parseInt(minor) + 1}.0`;
+  } else {
+    pkg.version = `${major}.${minor}.${parseInt(patch) + 1}`;
+  }
 }
 
-const newVersion = `${major}.${minor}.${patch}`;
-pkg.version = newVersion;
-
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-
-console.log(`🔧 New version: ${newVersion}`);
+console.log(`🔖 New version: ${pkg.version}`);
