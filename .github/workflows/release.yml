@@ -53,5 +53,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.metadata.outputs.version }}
-          name: Release v${{ steps.metadata.outputs.version }}
+          name: v${{ steps.metadata.outputs.version }}
           files: .output/${{ steps.metadata.outputs.name }}-${{ steps.metadata.outputs.version }}-chrome.zip
