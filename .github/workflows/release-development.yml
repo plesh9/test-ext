@@ -39,7 +39,7 @@ jobs:
           git commit -m "🔖 Bump dev version"
           git fetch origin main
           trap 'git reset --hard HEAD~1' EXIT
-          if ! git merge --no-commit --no-ff --allow-unrelated-histories origin/main; then
+          if ! git merge --no-commit --no-ff origin/main; then
             echo "❌ Merge conflict with main branch!"
             exit 1
           else
