@@ -35,22 +35,14 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-
-          git add package.json
-          git commit -m "🔖 Bump dev version"
-
           git fetch origin main
-
-          # Спроба змерджити з main, допускаючи різну історію
-          if ! git merge --no-commit --no-ff --allow-unrelated-histories origin/main; then
-            echo "❌ Merge conflict or unrelated history with main branch!"
-            git merge --abort || true
-            git reset --hard HEAD~1
-            exit 1
-          else
-            echo "✅ No conflicts with main"
-            git reset --hard HEAD~1
-          fi
+          BASE=$(git merge-base HEAD origin/main)
+              if [ "$BASE" != "$(git rev-parse origin/main)" ]; then
+                echo "❌ Development is not up to date with main"
+                exit 1
+              else
+                echo "✅ Development is up to date with main"
+              fi
 
       - name: Get project metadata
         id: metadata
