@@ -6,7 +6,7 @@ const App: FC = () => {
   return (
     <div>
       App
-      {isDev && <span> --DEV</span>}
+      {isDev && <span>  --DEV</span>}
     </div>
   );
 };
