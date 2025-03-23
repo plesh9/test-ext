@@ -33,23 +33,6 @@ jobs:
 
       - name: Check merge conflicts with main
         run: |
-          git fetch origin main
-          if ! git merge --no-commit --no-ff --allow-unrelated-histories origin/main; then
-            echo "❌ Merge conflict with main branch!"
-            exit 1
-          else
-            echo "✅ No conflicts with main"
-            git merge --abort
-          fi
-
-      - name: Get project metadata
-        id: metadata
-        run: |
-          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
-          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Check merge conflicts with main
-        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git fetch origin main
@@ -60,6 +43,21 @@ jobs:
             echo "✅ No conflicts with main"
             git merge --abort || true
           fi
+
+      - name: Get project metadata
+        id: metadata
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Commit and tag version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "Release v${{ steps.metadata.outputs.version }}"
+          git tag "v${{ steps.metadata.outputs.version }}"
+          git push
+          git push --tags
 
       - name: Zip Extension
         run: pnpm zip:dev
