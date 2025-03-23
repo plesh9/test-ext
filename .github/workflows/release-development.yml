@@ -38,11 +38,12 @@ jobs:
           git add package.json
           git commit -m "🔖 Bump dev version"
           git fetch origin main
-          trap 'git reset --hard HEAD~1' EXIT
-          if ! git merge --no-commit --no-ff origin/main; then
+          if ! git merge --no-commit --no-ff --allow-unrelated-histories origin/main; then
+            git reset --hard HEAD~1
             echo "❌ Merge conflict with main branch!"
             exit 1
           else
+            git reset --hard HEAD~1
             echo "✅ No conflicts with main"
             git merge --abort || true
           fi
