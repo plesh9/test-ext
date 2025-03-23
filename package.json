@@ -2,7 +2,7 @@
   "name": "test-ext",
   "description": "manifest.json description",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.1-dev.3",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -10,6 +10,7 @@
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
+    "zip:dev": "wxt zip --mode development",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare",

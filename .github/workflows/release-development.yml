@@ -1,0 +1,73 @@
+name: Release Development Extension
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Bump version
+        run: pnpm bump-version --dev
+
+      - name: Check merge conflicts with main
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch origin main
+          BASE=$(git merge-base HEAD origin/main)
+              if [ "$BASE" != "$(git rev-parse origin/main)" ]; then
+                echo "❌ Development is not up to date with main"
+                exit 1
+              else
+                echo "✅ Development is up to date with main"
+              fi
+
+      - name: Get project metadata
+        id: metadata
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Commit and tag version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "Development Release v${{ steps.metadata.outputs.version }}"
+          git tag "v${{ steps.metadata.outputs.version }}"
+          git push
+          git push --tags
+
+      - name: Zip Extension
+        run: pnpm zip:dev
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.metadata.outputs.version }}
+          name: v${{ steps.metadata.outputs.version }}
+          files: .output/${{ steps.metadata.outputs.name }}-${{ steps.metadata.outputs.version }}-chrome.zip
+          prerelease: true

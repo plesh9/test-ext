@@ -8,7 +8,6 @@ function App() {
 
   return (
     <>
-    
       <div>
         <a href="https://wxt.dev" target="_blank">
           <img src={wxtLogo} className="logo" alt="WXT logo" />
