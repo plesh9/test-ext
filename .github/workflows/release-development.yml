@@ -31,6 +31,17 @@ jobs:
       - name: Bump version
         run: pnpm bump-version --dev
 
+      - name: Check merge conflicts with main
+        run: |
+          git fetch origin main
+          if ! git merge --no-commit --no-ff origin/main; then
+            echo "❌ Merge conflict with main branch!"
+            exit 1
+          else
+            echo "✅ No conflicts with main"
+            git merge --abort
+          fi
+
       - name: Get project metadata
         id: metadata
         run: |
