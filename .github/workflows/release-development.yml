@@ -35,17 +35,20 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+
           git add package.json
           git commit -m "🔖 Bump dev version"
+
           git fetch origin main
-          if ! git merge --no-commit --no-ff --allow-unrelated-histories origin/main; then
-            git reset --hard HEAD~1
+
+          if ! git merge --no-commit --no-ff origin/main; then
             echo "❌ Merge conflict with main branch!"
+            git merge --abort || true
+            git reset --hard HEAD~1
             exit 1
           else
-            git reset --hard HEAD~1
             echo "✅ No conflicts with main"
-            git merge --abort || true
+            git reset --hard HEAD~1
           fi
 
       - name: Get project metadata
@@ -58,7 +61,8 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git commit -am "Development Release v${{ steps.metadata.outputs.version }}"
+          git add .
+          git commit -m "Development Release v${{ steps.metadata.outputs.version }}"
           git tag "dev-v${{ steps.metadata.outputs.version }}"
           git push
           git push --tags
