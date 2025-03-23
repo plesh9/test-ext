@@ -57,7 +57,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git commit -am "Development Release v${{ steps.metadata.outputs.version }}"
-          git tag "dev-v${{ steps.metadata.outputs.version }}"
+          git tag "v${{ steps.metadata.outputs.version }}"
           git push
           git push --tags
 
@@ -67,7 +67,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: dev-v${{ steps.metadata.outputs.version }}
-          name: dev-v${{ steps.metadata.outputs.version }}
+          tag_name: v${{ steps.metadata.outputs.version }}
+          name: v${{ steps.metadata.outputs.version }}
           files: .output/${{ steps.metadata.outputs.name }}-${{ steps.metadata.outputs.version }}-chrome.zip
           prerelease: true
